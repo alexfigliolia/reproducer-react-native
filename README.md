@@ -1,79 +1,49 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+1. `git clone git@github.com:alexfigliolia/reproducer-react-native.git demo`
+2. `git clone git@github.com:alexfigliolia/react-native-counter-animation.git`
+3. `cd` into `react-native-counter-animation` and add the following to the `AnimatedNumber.tsx` module:
 
-# Getting Started
-
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
-
-## Step 1: Start the Metro Server
-
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
-
-To start Metro, run the following command from the _root_ of your React Native project:
-
-```bash
-# using npm
-npm start
-
-# OR using Yarn
-yarn start
+```typescript
+public override shouldComponentUpdate(
+    { style }: IAnimatedNumber,
+    nextState: State
+  ) {
+    if (style !== this.props.style) {
+      return true;
+    }
+    return this.state !== nextState;
+  }
 ```
 
-## Step 2: Start your Application
+4. While in react-native-counter-animation, add the following to the `Token.tsx` module:
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
-
-```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
+```typescript
+  public override shouldComponentUpdate({ value, style }: Props) {
+    if (value !== this.props.value) return true;
+    return style !== this.props.style;
+  }
 ```
 
-### For iOS
+The above lines will allow a parent component to update the style of animating nodes while an animation is running.
+
+5. In `react-native-counter-animation` run `yarn install && yarn build`
+
+6. Add `react-native-counter-animation` to the demo application's package.json:
+
+```json
+{
+  "dependencies": {
+    "react-native-counter-animation": "file:../react-native-counter-animation"
+  }
+}
+```
+ 
+7. `cd` into the demo application and run 
 
 ```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+yarn install && cd ios && bundle install && bundle exec pod install && cd .. && yarn start
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+8. Open xcode and turn off user script sandboxing for pods and demo build target
+9. Run the app in debug mode
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
-
-## Step 3: Modifying your App
-
-Now that you have successfully run the app, let's modify it.
-
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+The app is going to open into a screen with a little graph and counter animation. The corresponding module can be located by searching for `<RepairProgress />`. It'll send text updates to the counter component on a timer (which will throw the error) as long as renders are not being blocked. There is also a ` {fontSize !== null && ...}` conditional that you can turn off which will allow the component to calculate it's font-size at runtime. Turning this off will also recreate the error as long as the font size is initialized in some reactive way (theres a useState that can be initialized to ~20 instead of `null` at the top of the component). I'm available to help debug :)
